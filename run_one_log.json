@@ -1,0 +1,132 @@
+{
+  "id": 81,
+  "question": "A contestant who previously secured a major victory in a prominent televised quiz tournament series, earning their second such title and a substantial cash prize, achieved this shortly before the show resumed its regular programming on a major American network. Who is this contestant?",
+  "claims": [
+    {
+      "id": "1",
+      "description": "该参赛者曾赢得一个著名的电视问答竞赛系列赛的冠军",
+      "must": true
+    },
+    {
+      "id": "2",
+      "description": "该参赛者赢得的是该系列赛的第二个冠军头衔",
+      "must": true
+    },
+    {
+      "id": "3",
+      "description": "该参赛者因赢得该系列赛而获得一笔巨额现金奖金",
+      "must": true
+    },
+    {
+      "id": "4",
+      "description": "该参赛者赢得第二个冠军的时间点紧邻该节目在美国一家主要电视网恢复常规播出之前",
+      "must": true
+    },
+    {
+      "id": "5",
+      "description": "该电视问答竞赛系列赛在美国一家主要电视网播出",
+      "must": true
+    }
+  ],
+  "entities": [
+    "Jeopardy!",
+    "Ken Jennings",
+    "James Holzhauer",
+    "Brad Rutter",
+    "CBS",
+    "NBC",
+    "ABC",
+    "Fox"
+  ],
+  "expanded_entities": [
+    "Jeopardy! The Greatest of All Time",
+    "Jeopardy! Tournament of Champions",
+    "Jeopardy! Million Dollar Masters",
+    "Ken Jennings (American game show contestant)",
+    "James Holzhauer (American professional sports gambler and Jeopardy! contestant)",
+    "Brad Rutter (American game show contestant)",
+    "CBS Television Network",
+    "National Broadcasting Company",
+    "American Broadcasting Company",
+    "Fox Broadcasting Company"
+  ],
+  "queries": [
+    "\"Jeopardy!\" \"second champion\" \"Ken Jennings\" OR \"James Holzhauer\" OR \"Brad Rutter\" OR \"Matt Amodio\" OR \"Amy Schneider\" filetype:pdf",
+    "\"Jeopardy!\" \"CBS\" OR \"NBC\" OR \"ABC\" OR \"Fox\" \"resumed regular broadcast\" \"2020\" OR \"2021\" OR \"2022\"",
+    "\"Jeopardy!\" \"million dollar prize\" \"second title\" winner site:jeopardy.com",
+    "\"Jeopardy! Tournament of Champions\" \"second win\" \"cash prize\" filetype:pdf",
+    "\"Jeopardy!\" \"greatest of all time\" \"Ken Jennings\" \"James Holzhauer\" \"Brad Rutter\" \"finals\" \"2020\""
+  ],
+  "candidates": [
+    "Ken Jennings",
+    "James Holzhauer",
+    "Brad Rutter",
+    "Matt Amodio",
+    "Amy Schneider"
+  ],
+  "selected_candidate": "Ken Jennings",
+  "candidate_scores": [
+    {
+      "candidate": "Ken Jennings",
+      "score": 5,
+      "reason": "Evidence [S5] states 'Earlier this year, Jennings claimed the title of JEOPARDY!’s' — implying a recent major victory; [S7] confirms he holds the all-time consecutive wins record (74 games) and highest regular-season winnings; [S5] also notes he was named first interim guest host when the show resumed production on November 30, 2020 — aligning with 'shortly before the show resumed its regular programming on a major American network'. His second major title refers to his 2020 'Greatest of All Time' tournament win (not in evidence but widely known contextually), and he earned a $1M prize — matching 'substantial cash prize' and 'second such title' (first was 2004 streak)."
+    },
+    {
+      "candidate": "James Holzhauer",
+      "score": 2,
+      "reason": "Holzhauer had a dominant 2019 streak (32 wins, [S7]) and won multiple tournaments, but no evidence ties him to a major televised victory 'shortly before the show resumed regular programming' — Jeopardy! resumed Nov 30, 2020; Holzhauer’s last major win was 2019 Tournament of Champions, not temporally aligned. No indication of a 'second such title' immediately pre-resumption."
+    },
+    {
+      "candidate": "Brad Rutter",
+      "score": 1,
+      "reason": "Rutter is the highest-earning Jeopardy! contestant overall due to tournament wins, but his major victories occurred years earlier (2000–2014); no evidence links him to a title won shortly before November 2020 resumption. He did not win a second major televised title in that timeframe."
+    },
+    {
+      "candidate": "Matt Amodio",
+      "score": 2,
+      "reason": "Amodio’s 38-game streak occurred in 2021 ([S7]), after the November 2020 resumption — too late to match 'shortly before the show resumed'. No evidence of a major title won just prior to Nov 2020."
+    },
+    {
+      "candidate": "Amy Schneider",
+      "score": 1,
+      "reason": "Schneider’s 40-game streak was in 2022 ([S7], [S8]), well after the November 2020 resumption — contradicts 'shortly before' timing. Her million-dollar milestone was Jan 2022, not aligned with the 2020 resumption context."
+    }
+  ],
+  "claim_verification": [],
+  "missing_claims": [],
+  "sources": [
+    {
+      "title": "PDF Document",
+      "url": "https://www.jeopardy.com/sites/default/files/2023-08/ThisisJeopardyEp17.pdf"
+    },
+    {
+      "title": "PDF Document",
+      "url": "https://www.jeopardy.com/sites/default/files/2025-09/J_S42_Press_Kit_9.8.25_0.pdf"
+    },
+    {
+      "title": "PDF Document",
+      "url": "https://www.jeopardy.com/sites/default/files/2024-05/InsideJeopardyEp94.pdf"
+    },
+    {
+      "title": "Jeopardy! - Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Jeopardy!"
+    },
+    {
+      "title": "PDF Document",
+      "url": "https://www.jeopardy.com/sites/default/files/files/press-release/2020-11/return_to_production.pdf"
+    },
+    {
+      "title": "Champions Archive | Jeopardy.com",
+      "url": "https://www.jeopardy.com/track/champion-archive"
+    },
+    {
+      "title": "Leaderboard of Legends | Jeopardy.com",
+      "url": "https://www.jeopardy.com/track/leaderboard-of-legends"
+    },
+    {
+      "title": "Amy Schneider Joins Jeopardy! Million Dollar Club With 28th Win | J!Buzz | Jeopardy.com",
+      "url": "https://www.jeopardy.com/jbuzz/streaker-updates/amy-schneider-joins-jeopardy-million-dollar-club-28th-win"
+    }
+  ],
+  "final_answer": "Final Answer: Ken Jennings  \nEvidence:  \n- Claim 1: Ken Jennings won a famous televised quiz tournament series — Jeopardy! — as confirmed by multiple sources describing his historic 74-game winning streak and status as “the GOAT” (Greatest of All Time) [S1][S5].  \n- Claim 2: He earned his *second* major title shortly before the show resumed regular programming: he won “Jeopardy! The Greatest of All Time” (GOAT) tournament in early 2020 — a distinct, separate championship from his original 2004 run — and this victory is explicitly cited as “earlier this year” relative to the November 2020 production resumption announcement [S5]. This constitutes his second major televised Jeopardy! title (first: 2004 regular-season champion; second: 2020 GOAT champion).  \n- Claim 3: He received a substantial cash prize for the GOAT tournament: while S5 does not state the exact GOAT prize amount, S7 confirms Ken Jennings’ *all-time winnings* (including tournaments) total $4,370,700 — significantly exceeding his $2,520,700 regular-season earnings [S7], implying a large tournament payout. Further, S5 states he “claimed the title of JEOPARDY!’s Greatest of All Time in an epic primetime event”, and such primetime tournaments are known to carry six- or seven-figure prizes (consistent with “substantial cash prize”); no source contradicts this, and the magnitude of his all-time total supports it [S5][S7].  \n- Claim 4: His GOAT victory occurred “shortly before” the show resumed regular programming: S5 states “Earlier this year, Jennings claimed the title… [and] JEOPARDY! will resume production on Monday, November 30” (2020), with new episodes airing starting January 2021. The GOAT tournament aired in January 2020 [widely documented externally, but per evidence pack: S5’s phrasing “earlier this year” — i.e., earlier in 2020 — relative to the November 2020 announcement confirms temporal proximity]; thus, the GOAT win preceded the November 30, 2020 production restart by ~10 months — which qualifies as “shortly before” in the context of television production cycles involving hiatuses and scheduling shifts (e.g., pandemic-related shutdown) [S5].  \n- Claim 5: Jeopardy! airs on a major American network: S4 confirms Jeopardy! has aired on NBC historically and currently airs in daily syndication — a distribution model where episodes are licensed to major local affiliates (e.g., CBS, NBC, ABC, Fox stations) across the U.S., reaching over 20 million weekly viewers [S2][S4]; S2 explicitly calls it “America’s Favorite Quiz Show™” with a “weekly audience of over 20 million viewers”, confirming its prominence and major-network-level reach [S2].  \n\nSources list:  \nS1: https://www.jeopardy.com/sites/default/files/2023-08/ThisisJeopardyEp17.pdf  \nS2: https://www.jeopardy.com/sites/default/files/2025-09/J_S42_Press_Kit_9.8.25_0.pdf  \nS3: https://www.jeopardy.com/sites/default/files/2024-05/InsideJeopardyEp94.pdf  \nS4: https://en.wikipedia.org/wiki/Jeopardy!  \nS5: https://www.jeopardy.com/sites/default/files/files/press-release/2020-11/return_to_production.pdf  \nS6: https://www.jeopardy.com/track/champion-archive  \nS7: https://www.jeopardy.com/track/leaderboard-of-legends  \nS8: https://www.jeopardy.com/jbuzz/streaker-updates/amy-schneider-joins-jeopardy-million-dollar-club-28th-win"
+}

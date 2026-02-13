@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.env
+.vscode/
+env/
+*.jsonl
+*.log
+dist/
+build/
+.trae/
