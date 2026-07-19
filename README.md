@@ -1,5 +1,7 @@
 # Tianchi DeepSearch Agent
 
+[English](./README.md) | [中文](./README_zh.md)
+
 A **multi-hop deep research agent** for complex fact-seeking questions.
 
 The system implements an **orchestrator–worker execution harness** on [LangGraph](https://github.com/langchain-ai/langgraph): task decomposition into a dependency graph, parallel retrieval workers, iterative reflection, evidence-aware context management, and post-hoc answer verification. It is designed for DeepSearch-style evaluation (short-form exact answers under a hard latency budget) and can be deployed behind a Server-Sent Events (SSE) API on Alibaba Cloud PAI-EAS via AgentScope Runtime.
@@ -65,17 +67,19 @@ The system implements an **orchestrator–worker execution harness** on [LangGra
 
 ## End-to-End Example
 
-The benchmark questions are typically **indirect multi-hop**: entities are described, not named. The following walkthrough uses a representative item (abridged from `test_data.jsonl`). Intermediate retrieval results are illustrative.
+Benchmark questions are typically **indirect multi-hop**: entities are described, not named. The following walkthrough uses a representative item (abridged from `test_data.jsonl`). Intermediate retrieval results are illustrative.
 
 ### Input
 
 ```text
-在某一年，一位法国天文学家对一颗彗星的光谱进行了开创性观测，
-同年的一张太阳黑子照片后来在东亚某大都市的天文展览中展出。
-也正是在这一年，一位尚不满二十岁的南欧创业者，在家乡小镇创办了他的出版事业。
-十余年后，他将公司总部迁往了该国北部的商业中心。
-他所创立的这家出版公司的名字是什么？
+In a certain year, a French astronomer made a pioneering observation of a comet’s spectrum;
+a sunspot photograph from the same year was later exhibited in a major East Asian city.
+In that same year, a southern-European entrepreneur not yet twenty founded a publishing business
+in his hometown, and more than a decade later moved the headquarters to the country’s northern
+commercial center. What is the name of the publishing company he founded?
 ```
+
+*(Chinese original available in `test_data.jsonl` and [README_zh.md](./README_zh.md).)*
 
 ### Task graph (after decomposition)
 
@@ -86,7 +90,7 @@ t3  year + young southern-European publisher  →  founder?
 t4  founder + HQ move to northern commercial center  →  company name?
 ```
 
-Typical dependency: `t1 → t3 → t4`. Independent hops may run with empty `depends_on` and execute in parallel when ready.
+Typical dependency: `t1 → t3 → t4`. Independent hops may use empty `depends_on` and run in parallel when ready.
 
 ### Worker rounds (illustrative)
 
@@ -94,7 +98,7 @@ Typical dependency: `t1 → t3 → t4`. Independent hops may run with empty `dep
 |------:|------|-------------------------|---------|
 | 1 | `t1` | French astronomer comet spectrum | year **1868** |
 | 2 | `t3` | `1868` publishing founder southern Europe | **Arnoldo Mondadori** |
-| 3 | `t4` | Mondadori headquarters Milan publisher | **阿诺尔多·蒙达多利出版社** |
+| 3 | `t4` | Mondadori headquarters Milan publisher | **Arnoldo Mondadori Editore** / Chinese full name as required |
 
 Per-worker pipeline:
 
@@ -155,6 +159,8 @@ assert "Paris" in result["final_answer"]
 ├── test_data.jsonl          # Sample questions + gold answers
 ├── env.example
 ├── service.example.json
+├── README.md                # English
+├── README_zh.md             # 中文
 └── requirements.txt
 ```
 
@@ -248,7 +254,7 @@ Reads `test_data.jsonl`, writes `result.jsonl` / `score.json` locally (not versi
 ## Design Notes
 
 1. **Bounded control loop** — Open-ended ReAct agents often exceed contest time limits. This harness uses an explicit DAG, a maximum number of worker rounds, and a wall-clock budget.  
-2. **Evidence over confidence alone** — LLM self-reported confidence is used as a soft signal; multi-source agreement and domain credibility adjust acceptance. Flow control does not rely on confidence alone.  
+2. **Evidence over confidence alone** — LLM self-reported confidence is a soft signal; multi-source agreement and domain credibility adjust acceptance. Flow control does not rely on confidence alone.  
 3. **Anchor propagation** — Downstream queries inject entities only from **direct upstream** tasks that meet a confidence floor, reducing error cascade.  
 4. **Failure isolation** — Individual tools or workers may fail without aborting the run; failed tasks still unlock dependents.  
 5. **Cost–latency trade-offs** — High-confidence single-source results skip a second engine; CoVe can be skipped when findings are already strong and cross-validated.
