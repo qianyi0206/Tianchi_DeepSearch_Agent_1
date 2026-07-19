@@ -1,159 +1,189 @@
-# Deep Research Agent Harness
+# Tianchi DeepSearch Agent
 
-面向**多跳复杂问答**的 Deep Research Agent 执行框架（Agent Harness）。
+多跳复杂问答的 Deep Research Agent。  
+基于 LangGraph 的 **orchestrator–worker** 执行框架，统一完成任务编排、多源检索、上下文压缩、执行记忆与答案核验。
 
-基于 **orchestrator–worker** 多智能体范式，用 LangGraph 打通：
-
-**编排 → 多源工具调用 → 上下文压缩 → 执行记忆 → 结果核验**
-
-曾用于阿里云天池 DeepSearch 竞赛场景（PAI-EAS / SSE 评测接口），也可作为通用多跳检索研究 Agent 的参考实现。
+面向天池 DeepSearch 类场景设计，支持在阿里云 PAI-EAS（AgentScope Runtime）上以 SSE 接口部署评测。
 
 ---
 
-## 架构
+## 系统流程
 
 ```
-用户问题
+Question
     │
-preliminary_search          # 多源预搜 + 问题 Hint
+    ▼
+Preliminary Search          多源预检索 + 问题预分析
     │
-question_decomposition      # 多跳分解 → 子任务 DAG
+    ▼
+Question Decomposition      多跳拆解 → 子任务 DAG
     │
-┌─► orchestrator            # 依赖分析，调度 ready 子任务
+    ▼
+┌─ Orchestrator ──────────── 按依赖调度 ready 子任务
 │       │
-│   worker_pool             # 并行 Worker：改写 → Exa∥Serper → 三角验证 → self-check
+│       ▼
+│  Worker Pool              并行执行：query 改写 → 检索/阅读/抽取
+│       │                   Exa ∥ Serper，可信度加权 + 多源交叉验证
+│       ▼
+│  Reflection               缺口分析：回溯补任务 / 收敛
 │       │
-│   reflection              # 缺口分析：补子任务 / 收敛（轮次 + 时间兜底）
-│       │
-└───────┘
+└───────┘  (轮次与时间预算兜底)
     │
-supplementary_search
+    ▼
+Supplementary Search
     │
-finalize_summary            # 综合 draft 答案
+    ▼
+Finalize                    综合证据生成 draft 答案
     │
-chain_of_verification       # CoVe + citation
+    ▼
+Chain-of-Verification       验证问题 + 证据核对 + citation
     │
-answer_extraction           # 类型规则 + 格式归一 + session 记忆
-```
-
-| 能力 | 实现要点 |
-|------|----------|
-| 编排与控制循环 | `task_graph` 子任务 DAG；`orchestrator` / `worker_pool` / `reflection` |
-| 多工具并行 | Exa / Serper / Jina / 百科；高 conf 快路径；多源三角验证与域名可信度 |
-| 上下文工程 | query-aware 段落抽取；超长文档 LLM compaction |
-| 记忆与审计 | `execution_trace` 注入后续轮次；进程内 short/long-term memory API |
-| 结果核验 | 候选 self-check；Chain-of-Verification；claim↔source citation |
-| 工程化 | SSE（Ping + Message）、分层超时、单源失败不断链、批量评测脚本 |
-
----
-
-## 项目结构
-
-```
-├── agent.py          # LangGraph 组装 + AgentScope Runtime + SSE 端点
-├── harness.py        # orchestrator / worker_pool / reflection / CoVe
-├── task_graph.py     # 子任务 DAG
-├── memory.py         # 可审计轨迹与 session 记忆
-├── nodes.py          # 预搜 / 分解 / 综合 / 答案抽取
-├── tools.py          # 搜索工具、压缩、三角验证、并行多源
-├── plan_tips.py      # 领域 Plan Tips 规则库
-├── config.py         # 模型与阈值（从环境变量读 Key）
-├── state.py          # ResearchState
-├── run_eval.py       # 批量评测客户端
-├── test_data.jsonl   # 样例题（含标准答案，便于本地对照）
-├── env.example       # 密钥模板
-└── service.example.json
+    ▼
+Answer Extraction           类型约束与格式归一化
 ```
 
 ---
 
-## 快速开始
+## 能力概览
 
-### 1. 环境
+**编排与控制**
+
+- 问题分解为子任务 DAG，orchestrator 调度、worker 并行执行  
+- Reflection：证据不足时补子任务，充分或无增量信息时收敛  
+- 轮次上限与时间预算双重兜底  
+
+**检索与工具**
+
+- 统一接入 Exa、Serper（Google）、Jina Reader、百科类摘要  
+- 检索 → 阅读 → 抽取 → query 改写闭环  
+- 查询去重；来源域名可信度；多源结果交叉验证后采纳  
+- 单源高置信快路径，失败源降级不断链  
+
+**上下文**
+
+- Query-aware 段落抽取  
+- 超长文档触发 LLM 压缩，控制 token 占用  
+
+**记忆**
+
+- `execution_trace` 记录候选、证据与步骤，并回注后续推理  
+- 短/长期 session 接口（进程内）  
+
+**核验**
+
+- 候选 self-check；Chain-of-Verification  
+- 答案与证据对齐，输出 citation 元数据  
+
+**工程**
+
+- SSE：`event: Ping` 保活 + `event: Message` 返回答案  
+- 分层超时与异常降级  
+- `run_eval.py` 批量调用与评分  
+
+---
+
+## 目录结构
+
+```text
+agent.py            图组装、Runtime、SSE 入口
+harness.py          orchestrator / worker_pool / reflection / CoVe
+task_graph.py       子任务 DAG
+memory.py           执行轨迹与 session 记忆
+nodes.py            预搜、分解、综合、答案抽取
+tools.py            搜索、抓取、压缩、多源验证
+plan_tips.py        领域检索策略 tips
+config.py           模型与阈值（密钥从环境变量读取）
+state.py            全局状态定义
+run_eval.py         批量评测客户端
+test_data.jsonl     样例题目
+env.example         环境变量模板
+service.example.json  评测服务配置模板
+```
+
+---
+
+## 环境配置
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 
 cp env.example env.txt
-# 编辑 env.txt，填入 DASHSCOPE / EXA / SERPER / JINA
+# 编辑 env.txt
 ```
 
-### 2. 本地调用图（不启 HTTP）
+| 变量 | 说明 |
+|------|------|
+| `DASHSCOPE_API_KEY` | 通义千问（DashScope OpenAI 兼容接口） |
+| `EXA_API_KEY` | Exa 搜索 |
+| `SERPER_API_KEY` | Serper / Google 搜索 |
+| `JINA_API_KEY` | Jina 网页阅读（可选） |
+| `MAIN_MODEL` / `FLASH_MODEL` | 可选，覆盖默认模型名 |
+
+密钥仅通过环境变量或本地 `env.txt` 注入，**不要提交**到仓库。`env.txt`、`service.json` 已在 `.gitignore` 中。
+
+阈值与超时见 `config.py`（如 `MAX_SEARCH_LOOPS`、`TIME_BUDGET_SECS`）。
+
+---
+
+## 使用方式
+
+### 直接调用图
 
 ```python
 from agent import build_research_graph, _make_initial_state
 
 graph = build_research_graph()
-result = graph.invoke(_make_initial_state("Where is the capital of France?"))
-print(result["final_answer"])
+out = graph.invoke(_make_initial_state("你的多跳问题"))
+print(out["final_answer"])
 ```
 
-### 3. 天池兼容 SSE 接口
+### HTTP（SSE）
 
-部署于 AgentScope Runtime / PAI-EAS 后：
+部署到 AgentScope Runtime / PAI-EAS 后：
 
 ```bash
-curl -X POST "$ENDPOINT" \
+curl -N -X POST "$ENDPOINT" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
+  -H "Accept: text/event-stream" \
   -d '{"question": "Where is the capital of France?"}'
 ```
-
-响应示例：
 
 ```text
 event: Ping
 
 event: Message
-data: {"answer": "Paris", "citations": [...]}
+data: {"answer": "Paris"}
 ```
 
-### 4. 批量评测
+可选字段：`citations`（核验阶段生成的来源列表）。
+
+### 批量评测
 
 ```bash
 cp service.example.json service.json
-# 填写 api_url / auth_token
+# 填写 api_url、auth_token
 python run_eval.py
 ```
 
+读取 `test_data.jsonl`，结果写入 `result.jsonl`（本地文件，默认不入库）。
+
 ---
 
-## 配置说明
+## 技术栈
 
-密钥与模型通过环境变量或 `env.txt` 注入（**不要提交真实 Key**）：
-
-| 变量 | 用途 |
+| 组件 | 选型 |
 |------|------|
-| `DASHSCOPE_API_KEY` | 通义 / DashScope OpenAI 兼容接口 |
-| `EXA_API_KEY` | Exa 语义搜索 |
-| `SERPER_API_KEY` | Google 搜索（Serper） |
-| `JINA_API_KEY` | Jina Reader 网页抓取 |
-| `MAIN_MODEL` / `FLASH_MODEL` | 可选，覆盖默认模型名 |
-
-调参集中在 `config.py`：`MAX_SEARCH_LOOPS`、`TIME_BUDGET_SECS`、三角验证阈值、CoVe 开关等。
-
----
-
-## 设计要点（面试可讲）
-
-1. **有界控制循环**：开放式 ReAct 易超时；改为 DAG + 固定轮次 / 时间预算收敛。  
-2. **失败不堵链**：上游 `failed` 仍解锁下游，避免整图卡死。  
-3. **条件多源**：Serper 高 conf 走快路径；否则补 Exa 并做三角验证。  
-4. **锚点传递**：仅从直接上游高 conf 结果注入，降低错误实体污染。  
-5. **CoVe 可跳过**：证据充分且已三角一致时跳过，省时延。  
-
----
-
-## 安全说明
-
-- 仓库内 **不包含** 真实 API Key / EAS Token。  
-- 本地使用 `env.txt`、`service.json`（已在 `.gitignore`）。  
-- 若密钥曾出现在历史提交中，请在对应平台**轮换密钥**。  
+| 编排 | LangGraph `StateGraph` |
+| LLM | DashScope 兼容 Chat API（可配置模型名） |
+| 搜索 | Exa、Serper、Jina |
+| 服务 | FastAPI + AgentScope Runtime |
+| 协议 | Server-Sent Events |
 
 ---
 
 ## License
 
-MIT（可按需修改）
+MIT
