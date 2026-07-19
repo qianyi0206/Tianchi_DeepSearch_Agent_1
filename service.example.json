@@ -1,0 +1,4 @@
+{
+  "api_url": "https://your-eas-endpoint.example.com/api/predict/your_service",
+  "auth_token": "your_bearer_token"
+}

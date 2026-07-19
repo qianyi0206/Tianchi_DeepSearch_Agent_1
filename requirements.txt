@@ -1,0 +1,16 @@
+# Core
+exa_py>=2.7.0
+langchain>=1.2.0
+langchain-core>=1.2.0
+langchain-openai>=1.1.0
+langgraph>=1.0.0
+openai>=2.0.0
+pydantic>=2.0.0
+requests>=2.28.0
+
+# Runtime (PAI-EAS / LangStudio)
+fastapi>=0.100.0
+agentscope-runtime>=1.0.0
+
+# Optional eval client
+aiohttp>=3.9.0

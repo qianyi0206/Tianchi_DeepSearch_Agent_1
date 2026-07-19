@@ -1,0 +1,37 @@
+# Secrets & local config
+.env
+.env.*
+env.txt
+service.json
+!.env.example
+!env.example
+!service.example.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Eval outputs
+result.jsonl
+score.json
+answers.jsonl
+*.log
+
+# Agent runtime memory (if ever persisted to disk)
+.agent_memory/

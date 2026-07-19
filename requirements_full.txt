@@ -1,0 +1,19 @@
+# Core dependencies for agent.py
+exa_py==2.7.0
+langchain==1.2.10
+langchain-core==1.2.15
+langchain-openai==1.1.10
+langgraph==1.0.9
+langgraph-checkpoint==4.0.0
+langgraph-prebuilt==1.0.8
+openai==2.23.0
+pydantic==2.12.4
+
+# Web framework (provided by LangStudio runtime)
+fastapi==0.132.0
+
+# Runtime (provided by LangStudio runtime)
+agentscope-runtime==1.0.5.post1
+
+# For run_eval.py batch evaluation
+aiohttp==3.13.3
