@@ -150,11 +150,26 @@ def _extract_query_passages(
 # ─── Exa Client ─────────────────────────────────────────────────────
 exa_client = Exa(api_key=EXA_API_KEY) if EXA_API_KEY else None
 
+# exa_py 同步客户端直接调 requests.* 且不传 timeout（v2.7.0），TCP 层停滞
+# 会永久挂住工作线程。给未显式指定 timeout 的 requests 调用补默认传输超时；
+# 显式传了 timeout 的调用（Serper/Jina/Wayback）不受影响。
+_REQUESTS_DEFAULT_TIMEOUT = (10, EXA_TIMEOUT_SECS + 10)  # (connect, read)
+
+_session_request = requests.Session.request
+
+
+def _request_with_default_timeout(self, method, url, **kwargs):
+    kwargs.setdefault("timeout", _REQUESTS_DEFAULT_TIMEOUT)
+    return _session_request(self, method, url, **kwargs)
+
+
+requests.Session.request = _request_with_default_timeout
+
 
 def _run_with_timeout(fn, timeout: float = EXA_TIMEOUT_SECS):
     """线程级超时，避免改动进程级 socket.setdefaulttimeout（并行不安全）。"""
     # 不用 with：__exit__ 的 shutdown(wait=True) 会阻塞到 fn 跑完，使超时失效。
-    # 超时后放弃的线程由 fn 自身超时（如 httpx）兜底回收。
+    # 放弃的工作线程由上面的 requests 默认传输超时兜底回收。
     pool = ThreadPoolExecutor(max_workers=1)
     fut = pool.submit(fn)
     try:
