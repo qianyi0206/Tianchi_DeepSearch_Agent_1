@@ -380,6 +380,9 @@ def question_decomposition(state: ResearchState) -> dict:
     if tips_block:
         logger.info(f"[question_decomposition] plan_tips matched: {len(tips)} tips")
 
+    # 题型专属查询设计模板（A/E/V 三层）
+    type_block = f"\n{_get_type_template(problem_type)}\n"
+
     # Hint Generation 注入
     hints_block = ""
     if hints:
@@ -404,7 +407,7 @@ Question: {query}
 3. search_query: 3-8 keywords; language matches the clue (Chinese clues → Chinese terms).
 4. Note final answer format/language constraints in answer_format.
 </rules>
-{tips_block}{hints_block}
+{tips_block}{type_block}{hints_block}
 Output valid JSON only (no markdown):
 {{
   "plan_text": "brief chain summary",

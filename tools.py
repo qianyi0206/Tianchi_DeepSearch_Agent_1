@@ -153,16 +153,20 @@ exa_client = Exa(api_key=EXA_API_KEY) if EXA_API_KEY else None
 
 def _run_with_timeout(fn, timeout: float = EXA_TIMEOUT_SECS):
     """线程级超时，避免改动进程级 socket.setdefaulttimeout（并行不安全）。"""
-    with ThreadPoolExecutor(max_workers=1) as pool:
-        fut = pool.submit(fn)
-        try:
-            return fut.result(timeout=timeout)
-        except FuturesTimeout:
-            logger.warning(f"call timed out after {timeout}s")
-            return None
-        except Exception as e:
-            logger.warning(f"call error: {e}")
-            return None
+    # 不用 with：__exit__ 的 shutdown(wait=True) 会阻塞到 fn 跑完，使超时失效。
+    # 超时后放弃的线程由 fn 自身超时（如 httpx）兜底回收。
+    pool = ThreadPoolExecutor(max_workers=1)
+    fut = pool.submit(fn)
+    try:
+        return fut.result(timeout=timeout)
+    except FuturesTimeout:
+        logger.warning(f"call timed out after {timeout}s")
+        return None
+    except Exception as e:
+        logger.warning(f"call error: {e}")
+        return None
+    finally:
+        pool.shutdown(wait=False, cancel_futures=True)
 
 
 def _safe_exa_search(query: str, num_results=5, search_type="auto") -> list[dict]:
