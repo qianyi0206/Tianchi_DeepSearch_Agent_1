@@ -444,7 +444,8 @@ def reflection(state: ResearchState) -> dict:
         else:
             converge = False
     else:
-        converge = True
+        # 非预期 action（含 add_tasks 但 spec 全部无效）：有未完成任务时不提前收敛
+        converge = all_terminal(updated_tasks)
 
     logger.info(
         f"[reflection] action={action} converge={converge} "

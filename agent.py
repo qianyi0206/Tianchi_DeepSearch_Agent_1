@@ -165,8 +165,12 @@ async def query_func(
             question = m.content
             break
 
+    session_id = getattr(request, "session_id", None) or "default"
+    user_id = getattr(request, "user_id", None) or "default"
     result = await asyncio.to_thread(
-        research_graph.invoke, _make_initial_state(question)
+        research_graph.invoke,
+        _make_initial_state(question, session_id=session_id, user_id=user_id),
+        {"recursion_limit": 100},
     )
     answer = result.get("final_answer", "未能获取有效回答")
     yield AIMessage(content=answer), True
@@ -194,6 +198,7 @@ async def tianchi_eval_endpoint(request: Request):
             asyncio.to_thread(
                 research_graph.invoke,
                 _make_initial_state(question, session_id=session_id, user_id=user_id),
+                {"recursion_limit": 100},
             )
         )
         task.add_done_callback(lambda t: t.exception() if not t.cancelled() else None)
